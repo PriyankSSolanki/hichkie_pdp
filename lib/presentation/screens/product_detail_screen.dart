@@ -1,11 +1,25 @@
 import 'package:flutter/material.dart';
 import '../../core/constants.dart';
+import '../../domain/models/product_model.dart';
+import '../widgets/deal_timer.dart';
+
+final Product dummyProduct = Product(
+  name: 'Wireless Noise Cancelling Headphones',
+  description: 'High fidelity audio with long battery life and smart assistant support.',
+  price: 4999,
+  originalPrice: 9999,
+  imageUrl: 'https://images.unsplash.com/photo-1585386959984-a41552249d5e',
+  discountPercentage: 50,
+  dealDuration: const Duration(hours: 2, minutes: 14, seconds: 38),
+);
 
 class ProductDetailScreen extends StatelessWidget {
   const ProductDetailScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final Product product = dummyProduct;
+
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -13,12 +27,18 @@ class ProductDetailScreen extends StatelessWidget {
             // 🔷 Product Image with Badge + Timer
             Stack(
               children: [
-                // Image
+                // 🎯 Product Image with loading & error handling
                 Image.network(
-                  'https://example.com/product-image.jpg', // Replace with real one later
+                  product.imageUrl,
                   height: 300,
                   width: double.infinity,
                   fit: BoxFit.cover,
+                  loadingBuilder: (context, child, loadingProgress) =>
+                  loadingProgress == null
+                      ? child
+                      : const Center(child: CircularProgressIndicator()),
+                  errorBuilder: (context, error, stackTrace) =>
+                  const Center(child: Icon(Icons.error, size: 50)),
                 ),
 
                 // 🎖️ Discount Badge
@@ -31,9 +51,9 @@ class ProductDetailScreen extends StatelessWidget {
                       color: AppColors.accent,
                       borderRadius: BorderRadius.circular(6),
                     ),
-                    child: const Text(
-                      '50% OFF',
-                      style: TextStyle(
+                    child: Text(
+                      '${product.discountPercentage}% OFF',
+                      style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
@@ -41,24 +61,11 @@ class ProductDetailScreen extends StatelessWidget {
                   ),
                 ),
 
-                // ⏳ Deal Timer
+                // ⏳ Deal Timer (Reusable)
                 Positioned(
                   top: 16,
                   right: 16,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.6),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: const Text(
-                      '02:14:38',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
+                  child: DealTimer(duration: product.dealDuration),
                 ),
               ],
             ),
@@ -70,33 +77,27 @@ class ProductDetailScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Wireless Noise Cancelling Headphones',
-                      style: AppTextStyles.title,
-                    ),
+                    Text(product.name, style: AppTextStyles.title),
                     const SizedBox(height: 8),
-                    const Text(
-                      'High fidelity audio with long battery life and smart assistant support.',
-                      style: AppTextStyles.subtitle,
-                    ),
+                    Text(product.description, style: AppTextStyles.subtitle),
                     const SizedBox(height: 16),
 
                     // 💰 Price Section
                     Row(
                       children: [
-                        const Text('₹4,999', style: AppTextStyles.title),
+                        Text('₹${product.price.toInt()}', style: AppTextStyles.title),
                         const SizedBox(width: 10),
                         Text(
-                          '₹9,999',
+                          '₹${product.originalPrice.toInt()}',
                           style: AppTextStyles.subtitle.copyWith(
                             decoration: TextDecoration.lineThrough,
                             color: Colors.grey,
                           ),
                         ),
                         const SizedBox(width: 10),
-                        const Text(
-                          '50% OFF',
-                          style: TextStyle(
+                        Text(
+                          '${product.discountPercentage}% OFF',
+                          style: const TextStyle(
                             color: AppColors.accent,
                             fontWeight: FontWeight.bold,
                           ),
@@ -114,7 +115,11 @@ class ProductDetailScreen extends StatelessWidget {
                           backgroundColor: AppColors.primary,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                         ),
-                        onPressed: () {},
+                        onPressed: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("Added to cart")),
+                          );
+                        },
                         child: const Text(
                           'Add to Cart',
                           style: TextStyle(

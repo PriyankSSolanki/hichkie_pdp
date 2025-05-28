@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
       title: 'Hichkie PDP',
       debugShowCheckedModeBanner: false,
       theme: appTheme,
-      home: const ProductDetailScreen(),
+      home: ProductDetailScreen(),
     );
   }
 }
