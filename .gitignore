@@ -1,0 +1,13 @@
+.dart_tool/
+.packages
+build/
+.flutter-plugins
+.flutter-plugins-deps
+.flutter-versions
+.idea/
+.vscode/
+pubspec.lock
+windows/
+macos/
+linux/
+.env
