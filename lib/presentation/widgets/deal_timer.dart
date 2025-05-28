@@ -3,62 +3,61 @@ import 'package:flutter/material.dart';
 
 class DealTimer extends StatefulWidget {
   final Duration duration;
+  final VoidCallback? onExpire;
 
-  const DealTimer({super.key, required this.duration});
+  const DealTimer({super.key, required this.duration, this.onExpire});
 
   @override
   State<DealTimer> createState() => _DealTimerState();
 }
 
 class _DealTimerState extends State<DealTimer> {
-  late Duration remaining;
-  Timer? timer;
+  late Duration _remaining;
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    remaining = widget.duration;
-    timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (mounted) {
+    _remaining = widget.duration;
+    _startTimer();
+  }
+
+  void _startTimer() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (_remaining.inSeconds > 0) {
         setState(() {
-          if (remaining.inSeconds > 0) {
-            remaining -= const Duration(seconds: 1);
-          } else {
-            timer?.cancel();
-          }
+          _remaining -= const Duration(seconds: 1);
         });
+      } else {
+        _timer?.cancel();
+        if (widget.onExpire != null) {
+          widget.onExpire!();
+        }
       }
     });
   }
 
-  @override
-  void dispose() {
-    timer?.cancel();
-    super.dispose();
-  }
-
-  String get formattedTime {
-    final hours = remaining.inHours.toString().padLeft(2, '0');
-    final minutes = (remaining.inMinutes % 60).toString().padLeft(2, '0');
-    final seconds = (remaining.inSeconds % 60).toString().padLeft(2, '0');
-    return '$hours:$minutes:$seconds';
-  }
+  String _format(Duration d) =>
+      '${d.inHours.toString().padLeft(2, '0')}:${(d.inMinutes % 60).toString().padLeft(2, '0')}:${(d.inSeconds % 60).toString().padLeft(2, '0')}';
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.6),
+        color: Colors.black.withOpacity(0.7),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
-        formattedTime,
-        style: const TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.w600,
-        ),
+        'Ends in ${_format(_remaining)}',
+        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 }
