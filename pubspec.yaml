@@ -45,6 +45,7 @@ dependencies:
   carousel_slider: ^5.0.0
   flutter_3d_viewer: ^1.0.0
   lottie: ^3.3.1
+  http: ^1.2.0
 
 
 dev_dependencies:
